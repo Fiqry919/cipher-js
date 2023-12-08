@@ -19,7 +19,7 @@ class CipherJs {
     /**
      * 
      */
-    createCipher = (object: any) => {
+    createCipher = <T = any>(object: T) => {
         let key: any = this.op.key;
         let salt = Crypto.randomBytes(16);
 
@@ -46,7 +46,7 @@ class CipherJs {
     /**
      * 
      */
-    createDecipher = <T = any>(cipher: string): T => {
+    createDecipher = <T = any>(cipher: any): T => {
         const encoding = this.op.encoding;
         const buffer = Buffer.from(cipher, encoding);
         let key = this.op.key;

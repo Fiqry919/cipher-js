@@ -27,11 +27,16 @@ const cipher = new Cipher({
     encoding: 'base64',
 });
 
-const data = { data: 'test' };
+const data = {
+    email: "admin@gmail.com",
+    password: "admin123",
+    remember: true
+};
 console.log('size:', getSizeBytes(new Blob([JSON.stringify(data)]).size));
 
 console.time("encrypt_time");
 const crypt = cipher.createCipher(data);
+console.log(crypt);
 console.timeEnd("encrypt_time");
 console.log('encrypt size:', getSizeBytes(new Blob([crypt]).size));
 

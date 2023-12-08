@@ -3,10 +3,14 @@ import { Crypto, Options } from "../interfaces";
 class CipherJs {
     private algorithm: string[] = [];
 
+    private bytes: number;
+
     private counterMode: boolean = false;
 
     constructor(private op: Options) {
         this.algorithm = this.op.algorithm.split('-');
+        this.bytes = (isNaN(parseInt(this.algorithm[1]))
+            ? 256 : parseInt(this.algorithm[1])) / 8;
         this.counterMode = this.algorithm[2] === 'ccm'
             || this.algorithm[2] === 'ocb'
             || !this.algorithm[2];
@@ -19,15 +23,11 @@ class CipherJs {
         let key: any = this.op.key;
         let salt = Crypto.randomBytes(16);
 
-        if (!this.op.iv) {
-            this.op.iv = Crypto.randomBytes(this.counterMode ? 12 : 16)
-        }
+        if (!this.op.iv)
+            this.op.iv = Crypto.randomBytes(this.counterMode ? 12 : 16);
 
-        if (typeof key !== 'string' && 'password' in key) {
-            const bytes: number = (isNaN(parseInt(this.algorithm[1]))
-                ? 256 : parseInt(this.algorithm[1])) / 8;
-            key = Crypto.pbkdf2Sync(key.password, salt, key.iteration, bytes, key.digest);
-        }
+        if (typeof key !== 'string' && 'password' in key)
+            key = Crypto.pbkdf2Sync(key.password, salt, key.iteration, this.bytes, key.digest);
 
         const cipher = Crypto.createCipheriv(this.op.algorithm, key, this.op.iv, this.op?.options);
         const encoding = this.op.encoding;
@@ -52,15 +52,11 @@ class CipherJs {
         let key = this.op.key;
         let salt = buffer.subarray(0, 16);
 
-        if (!this.op.iv) {
+        if (!this.op.iv)
             this.op.iv = buffer.subarray(16, this.counterMode ? 28 : 32);
-        }
 
-        if (typeof key !== 'string' && 'password' in key) {
-            const bytes: number = (isNaN(parseInt(this.algorithm[1]))
-                ? 256 : parseInt(this.algorithm[1])) / 8;
-            key = Crypto.pbkdf2Sync(key.password, salt, key.iteration, bytes, key.digest);
-        }
+        if (typeof key !== 'string' && 'password' in key)
+            key = Crypto.pbkdf2Sync(key.password, salt, key.iteration, this.bytes, key.digest);
 
         const decipher = Crypto.createDecipheriv(this.op.algorithm, key, this.op.iv, this.op?.options);
         let encrypted = buffer.subarray(this.counterMode ? 28 : 32);

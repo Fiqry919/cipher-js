@@ -1,0 +1,17 @@
+{
+  "name": "cipher-js",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "ts-node src/test/index.test.ts"
+  },
+  "keywords": [],
+  "author": "Fiqry919",
+  "license": "MIT",
+  "dependencies": {
+    "@types/node": "^20.10.4"
+  }
+}

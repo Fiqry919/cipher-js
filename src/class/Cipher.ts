@@ -22,14 +22,14 @@ class CipherJs {
     createCipher = <T = any>(object: T) => {
         let key: any = this.op.key;
         let salt = Crypto.randomBytes(16);
+        let iv = this.op.iv;
 
-        if (!this.op.iv)
-            this.op.iv = Crypto.randomBytes(this.counterMode ? 12 : 16);
+        if (!iv) iv = Crypto.randomBytes(this.counterMode ? 12 : 16);
 
         if (typeof key !== 'string' && 'password' in key)
             key = Crypto.pbkdf2Sync(key.password, salt, key.iteration, this.bytes, key.digest);
 
-        const cipher = Crypto.createCipheriv(this.op.algorithm, key, this.op.iv, this.op?.options);
+        const cipher = Crypto.createCipheriv(this.op.algorithm, key, iv, this.op?.options);
         const encoding = this.op.encoding;
 
         let encrypted = cipher.update(JSON.stringify(object), 'utf8', encoding);
@@ -39,7 +39,7 @@ class CipherJs {
         if (this.algorithm[2] !== 'cbc' && this.op.options?.authTagLength)
             tag = (<any>cipher).getAuthTag() as Buffer;
 
-        const result = Buffer.concat([salt, <any>this.op.iv, tag, Buffer.from(encrypted, encoding)]);
+        const result = Buffer.concat([salt, <any>iv, tag, Buffer.from(encrypted, encoding)]);
         return result.toString(encoding);
     }
 
@@ -51,14 +51,14 @@ class CipherJs {
         const buffer = Buffer.from(cipher, encoding);
         let key = this.op.key;
         let salt = buffer.subarray(0, 16);
+        let iv = this.op.iv;
 
-        if (!this.op.iv)
-            this.op.iv = buffer.subarray(16, this.counterMode ? 28 : 32);
+        if (!iv) iv = buffer.subarray(16, this.counterMode ? 28 : 32);
 
         if (typeof key !== 'string' && 'password' in key)
             key = Crypto.pbkdf2Sync(key.password, salt, key.iteration, this.bytes, key.digest);
 
-        const decipher = Crypto.createDecipheriv(this.op.algorithm, key, this.op.iv, this.op?.options);
+        const decipher = Crypto.createDecipheriv(this.op.algorithm, key, iv, this.op?.options);
         let encrypted = buffer.subarray(this.counterMode ? 28 : 32);
 
         if (this.algorithm[2] !== 'cbc' && this.op.options?.authTagLength) {

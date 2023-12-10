@@ -8,10 +8,10 @@ declare class CipherJs {
     /**
      *
      */
-    createCipher: (object: any) => string;
+    createCipher: <T = any>(object: T) => string;
     /**
      *
      */
-    createDecipher: <T = any>(cipher: string) => T;
+    createDecipher: <T = any>(cipher: any) => T;
 }
 export default CipherJs;
